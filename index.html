@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CookLab — Recipe Scaling</title>
+    <style>
+        /* Global Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        :root {
+            --bg-color: #f5f5f7;
+            --card-bg: #ffffff;
+            --text-main: #1d1d1f;
+            --text-sub: #86868b;
+            --border: #d2d2d7;
+            --input-bg: #f5f5f7;
+            --accent-grad: linear-gradient(135deg, #5e5ce6 0%, #007aff 100%);
+            --seg-bg: #eeeeef;
+            --seg-item: #ffffff;
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+            --system-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.dark-mode {
+            --bg-color: #0f0f11;
+            --card-bg: #1c1c1f;
+            --text-main: #f5f5f7;
+            --text-sub: #a1a1a6;
+            --border: #3a3a3c;
+            --input-bg: #2c2c2e;
+            --seg-bg: #121214;
+            --seg-item: #3a3a3c;
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: var(--system-font);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+            transition: background-color var(--transition);
+        }
+
+        /* --- Card Layout --- */
+        .card {
+            width: 100%;
+            max-width: 440px; /* Locked max-width */
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden; /* Prevent child overflow */
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-content {
+            padding: 32px;
+        }
+
+        /* --- Theme Toggle --- */
+        .theme-toggle-wrapper {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            z-index: 10;
+        }
+
+        .toggle-label {
+            cursor: pointer;
+            width: 42px;
+            height: 24px;
+            background: var(--seg-bg);
+            display: block;
+            border-radius: 100px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .toggle-label:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #theme-toggle:checked + .toggle-label { background: #5e5ce6; }
+        #theme-toggle:checked + .toggle-label:after { transform: translateX(18px); }
+        #theme-toggle { display: none; }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
+        }
+
+        /* --- Segmented Control --- */
+        .segmented-control {
+            background: var(--seg-bg);
+            padding: 2px;
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            margin-bottom: 24px;
+        }
+
+        .seg-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-sub);
+            transition: var(--transition);
+        }
+
+        .seg-btn.active {
+            background: var(--seg-item);
+            color: var(--text-main);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* --- Config Area (Portion Grid) --- */
+        .config-section {
+            background: var(--input-bg);
+            padding: 20px;
+            border-radius: 18px;
+            margin-bottom: 32px;
+        }
+
+        .portion-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Symmetrical 2-column */
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            min-width: 0; /* Prevent grid overflow */
+        }
+
+        .field label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            min-width: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: var(--system-font);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus { border-color: #007aff; }
+
+        .multiplier-hint {
+            margin-top: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5e5ce6;
+        }
+
+        /* --- Ingredient Rows (Grid) --- */
+        .ingredients-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 100px; /* Input fills space, Badge stays compact */
+            gap: 12px;
+            align-items: center;
+        }
+
+        .result-badge {
+            background: var(--input-bg);
+            padding: 12px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #007aff;
+            text-align: center;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-all;
+            transition: var(--transition);
+        }
+
+        .dark-mode .result-badge { color: #5e5ce6; }
+
+        .hidden { display: none; }
+
+        /* Responsive Stacking */
+        @media (max-width: 400px) {
+            .portion-grid {
+                grid-template-columns: 1fr; /* Stack on mobile */
+                gap: 12px;
+            }
+            .card-content {
+                padding: 24px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="theme-toggle-wrapper">
+        <input type="checkbox" id="theme-toggle" onchange="toggleTheme()">
+        <label for="theme-toggle" class="toggle-label"></label>
+    </div>
+
+    <div class="card-content">
+        <header>
+            <h1>CookLab</h1>
+        </header>
+
+        <div class="segmented-control">
+            <button class="seg-btn active" id="seg-mult" onclick="switchMode('multiplier')">Multiplier</button>
+            <button class="seg-btn" id="seg-port" onclick="switchMode('portions')">Portions</button>
+        </div>
+
+        <div class="config-section">
+            <!-- Mode A -->
+            <div id="mode-multiplier" class="field">
+                <label>Scaling Factor</label>
+                <input type="number" id="mult-input" value="2" step="0.1" oninput="updateAll()">
+            </div>
+
+            <!-- Mode B -->
+            <div id="mode-portions" class="hidden">
+                <div class="portion-grid">
+                    <div class="field">
+                        <label>Original</label>
+                        <input type="number" id="port-orig" value="4" oninput="updateAll()">
+                    </div>
+                    <div class="field">
+                        <label>Desired</label>
+                        <input type="number" id="port-dest" value="6" oninput="updateAll()">
+                    </div>
+                </div>
+                <div id="calc-display" class="multiplier-hint">Multiplier: 1.5x</div>
+            </div>
+        </div>
+
+        <div class="ingredients-list">
+            <!-- 5 Rows -->
+            <div class="row">
+                <input type="text" class="input-ing" placeholder="e.g. 250 g flour" oninput="updateAll()">
+                <div class="result-badge"></div>
+            </div>
+            <div class="row">
+                <input type="text" class="input-ing" placeholder="e.g. 100 ml milk" oninput="updateAll()">
+                <div class="result-badge"></div>
+            </div>
+            <div class="row">
+                <input type="text" class="input-ing" placeholder="e.g. 2 eggs" oninput="updateAll()">
+                <div class="result-badge"></div>
+            </div>
+            <div class="row">
+                <input type="text" class="input-ing" placeholder="Sugar" oninput="updateAll()">
+                <div class="result-badge"></div>
+            </div>
+            <div class="row">
+                <input type="text" class="input-ing" placeholder="Water" oninput="updateAll()">
+                <div class="result-badge"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentMode = 'multiplier';
+
+    function switchMode(mode) {
+        currentMode = mode;
+        document.getElementById('seg-mult').classList.toggle('active', mode === 'multiplier');
+        document.getElementById('seg-port').classList.toggle('active', mode === 'portions');
+        
+        document.getElementById('mode-multiplier').classList.toggle('hidden', mode !== 'multiplier');
+        document.getElementById('mode-portions').classList.toggle('hidden', mode !== 'portions');
+        
+        updateAll();
+    }
+
+    function updateAll() {
+        let multiplier = 1;
+
+        if (currentMode === 'multiplier') {
+            multiplier = parseFloat(document.getElementById('mult-input').value) || 0;
+        } else {
+            const orig = parseFloat(document.getElementById('port-orig').value) || 1;
+            const dest = parseFloat(document.getElementById('port-dest').value) || 0;
+            multiplier = dest / (orig || 1);
+            document.getElementById('calc-display').innerText = `Multiplier: ${multiplier.toFixed(2)}x`;
+        }
+
+        const rows = document.querySelectorAll('.row');
+        rows.forEach(row => {
+            const inputVal = row.querySelector('.input-ing').value.trim();
+            const badge = row.querySelector('.result-badge');
+            
+            if (!inputVal) {
+                badge.innerText = "";
+                return;
+            }
+            badge.innerText = scaleText(inputVal, multiplier);
+        });
+    }
+
+    function scaleText(text, mult) {
+        // Find numbers (including decimals)
+        const numRegex = /(\d+(\.\d+)?)/;
+        const match = text.match(numRegex);
+
+        if (match) {
+            const originalNum = parseFloat(match[0]);
+            const scaledNum = Math.ceil(originalNum * mult);
+            return text.replace(match[0], scaledNum);
+        }
+        return text;
+    }
+
+    function toggleTheme() {
+        const isDark = document.getElementById('theme-toggle').checked;
+        document.body.classList.toggle('dark-mode', isDark);
+        localStorage.setItem('cookLabTheme', isDark ? 'dark' : 'light');
+    }
+
+    // Initialization
+    window.onload = () => {
+        const savedTheme = localStorage.getItem('cookLabTheme');
+        if (savedTheme === 'dark') {
+            document.getElementById('theme-toggle').checked = true;
+            document.body.classList.add('dark-mode');
+        }
+        updateAll();
+    };
+</script>
+
+</body>
+</html>
