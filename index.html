@@ -55,12 +55,12 @@
         /* --- Card Layout --- */
         .card {
             width: 100%;
-            max-width: 440px; /* Locked max-width */
+            max-width: 440px;
             background: var(--card-bg);
             border-radius: 24px;
             box-shadow: var(--shadow);
             position: relative;
-            overflow: hidden; /* Prevent child overflow */
+            overflow: hidden;
             transition: var(--transition);
             display: flex;
             flex-direction: column;
@@ -106,11 +106,32 @@
         #theme-toggle:checked + .toggle-label:after { transform: translateX(18px); }
         #theme-toggle { display: none; }
 
-        header h1 {
+        /* --- Logo Header --- */
+        .app-header {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding-bottom: 24px;
+            background-color: transparent;
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-wrapper h1 {
             font-size: 24px;
             font-weight: 700;
             letter-spacing: -0.5px;
-            margin-bottom: 24px;
+            margin: 0;
+        }
+
+        .logo {
+            height: 40px;
+            width: auto;
+            transition: height 0.2s ease;
         }
 
         /* --- Segmented Control --- */
@@ -142,7 +163,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
-        /* --- Config Area (Portion Grid) --- */
+        /* --- Config Area --- */
         .config-section {
             background: var(--input-bg);
             padding: 20px;
@@ -152,14 +173,14 @@
 
         .portion-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Symmetrical 2-column */
+            grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
 
         .field {
             display: flex;
             flex-direction: column;
-            min-width: 0; /* Prevent grid overflow */
+            min-width: 0;
         }
 
         .field label {
@@ -194,7 +215,7 @@
             color: #5e5ce6;
         }
 
-        /* --- Ingredient Rows (Grid) --- */
+        /* --- Ingredient Rows --- */
         .ingredients-list {
             display: flex;
             flex-direction: column;
@@ -203,7 +224,7 @@
 
         .row {
             display: grid;
-            grid-template-columns: 1fr 100px; /* Input fills space, Badge stays compact */
+            grid-template-columns: 1fr 100px;
             gap: 12px;
             align-items: center;
         }
@@ -220,84 +241,29 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            word-break: break-all;
             transition: var(--transition);
         }
 
         .dark-mode .result-badge { color: #5e5ce6; }
-
         .hidden { display: none; }
 
-        /* Responsive Stacking */
+        /* --- Responsive Logic --- */
+        @media (max-width: 480px) {
+            .logo { height: 32px; }
+            .logo-wrapper h1 { font-size: 20px; }
+        }
+
         @media (max-width: 400px) {
             .portion-grid {
-                grid-template-columns: 1fr; /* Stack on mobile */
-                gap: 12px;
+                grid-template-columns: 1fr;
             }
             .card-content {
                 padding: 24px 20px;
             }
-         /* --- Header a Logo Wrapper --- */
-    .header {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      padding: 16px 0;
-      background-color: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .logo-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo-wrapper h1 {
-      font-size: 1.5rem;
-      margin: 0;
-    }
-
-    /* --- Logo responsivní velikosti --- */
-    .logo {
-      height: 50px;
-      width: auto;
-      transition: height 0.2s ease;
-    }
-
-    @media (max-width: 768px) {
-      .logo {
-        height: 35px;
-      }
-      .logo-wrapper h1 {
-        font-size: 1.2rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .logo {
-        height: 28px;
-      }
-      .logo-wrapper h1 {
-        font-size: 1rem;
-      }
-    }
-
-    /* --- Responsive Stacking --- */
-    .portion-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-    }
-
-    @media (max-width: 400px) {
-      .portion-grid {
-        grid-template-columns: 1fr; /* stack na extra malých mobilech */
-      }
-      .card-content {
-        padding: 24px 20px;
-      }
-    }
+            .row {
+                grid-template-columns: 1fr 80px;
+            }
+            .logo { height: 28px; }
         }
     </style>
 </head>
@@ -310,12 +276,12 @@
     </div>
 
     <div class="card-content">
-<header class="header">
-  <div class="logo-wrapper">
-    <img src="logoCL.png" alt="CookLab logo" class="logo">
-    <h1>CookLab</h1>
-  </div>
-</header>
+        <header class="app-header">
+            <div class="logo-wrapper">
+                <img src="logoCL.png" alt="CookLab logo" class="logo" onerror="this.style.display='none'">
+                <h1>CookLab</h1>
+            </div>
+        </header>
 
         <div class="segmented-control">
             <button class="seg-btn active" id="seg-mult" onclick="switchMode('multiplier')">Multiplier</button>
@@ -323,13 +289,11 @@
         </div>
 
         <div class="config-section">
-            <!-- Mode A -->
             <div id="mode-multiplier" class="field">
                 <label>Scaling Factor</label>
                 <input type="number" id="mult-input" value="2" step="0.1" oninput="updateAll()">
             </div>
 
-            <!-- Mode B -->
             <div id="mode-portions" class="hidden">
                 <div class="portion-grid">
                     <div class="field">
@@ -346,7 +310,6 @@
         </div>
 
         <div class="ingredients-list">
-            <!-- 5 Rows -->
             <div class="row">
                 <input type="text" class="input-ing" placeholder="e.g. 250 g flour" oninput="updateAll()">
                 <div class="result-badge"></div>
@@ -411,7 +374,6 @@
     }
 
     function scaleText(text, mult) {
-        // Find numbers (including decimals)
         const numRegex = /(\d+(\.\d+)?)/;
         const match = text.match(numRegex);
 
@@ -429,19 +391,4 @@
         localStorage.setItem('cookLabTheme', isDark ? 'dark' : 'light');
     }
 
-    // Initialization
-    window.onload = () => {
-        const savedTheme = localStorage.getItem('cookLabTheme');
-        if (savedTheme === 'dark') {
-            document.getElementById('theme-toggle').checked = true;
-            document.body.classList.add('dark-mode');
-        }
-        updateAll();
-    };
-</script>
-
-</body>
-
-</html>
-
-
+    window.onload = ()
