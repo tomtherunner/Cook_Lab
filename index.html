@@ -237,24 +237,67 @@
             .card-content {
                 padding: 24px 20px;
             }
-         .logo {
-  height: 50px; /* výška pro desktop */
-  width: auto;  /* zachová poměr stran */
-  transition: height 0.2s ease; /* pěkný hladký přechod při změně velikosti */
-}
+         /* --- Header a Logo Wrapper --- */
+    .header {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 16px 0;
+      background-color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
 
-/* Menší obrazovky (mobil) */
-@media (max-width: 768px) {
-  .logo {
-    height: 35px; /* menší logo na mobilech */
-  }
-}
+    .logo-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-/* Extra malé obrazovky (malé mobily) */
-@media (max-width: 480px) {
-  .logo {
-    height: 28px; /* ještě menší, aby nepřesahovalo navbar */
-  }
+    .logo-wrapper h1 {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    /* --- Logo responsivní velikosti --- */
+    .logo {
+      height: 50px;
+      width: auto;
+      transition: height 0.2s ease;
+    }
+
+    @media (max-width: 768px) {
+      .logo {
+        height: 35px;
+      }
+      .logo-wrapper h1 {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .logo {
+        height: 28px;
+      }
+      .logo-wrapper h1 {
+        font-size: 1rem;
+      }
+    }
+
+    /* --- Responsive Stacking --- */
+    .portion-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    @media (max-width: 400px) {
+      .portion-grid {
+        grid-template-columns: 1fr; /* stack na extra malých mobilech */
+      }
+      .card-content {
+        padding: 24px 20px;
+      }
+    }
         }
     </style>
 </head>
@@ -267,10 +310,12 @@
     </div>
 
     <div class="card-content">
-        <header>
-            <img src="logoCL.png" alt="CookLab logo" class="logo">
-            <h1>CookLab</h1>
-        </header>
+<header class="header">
+  <div class="logo-wrapper">
+    <img src="logoCL.png" alt="CookLab logo" class="logo">
+    <h1>CookLab</h1>
+  </div>
+</header>
 
         <div class="segmented-control">
             <button class="seg-btn active" id="seg-mult" onclick="switchMode('multiplier')">Multiplier</button>
@@ -398,4 +443,5 @@
 </body>
 
 </html>
+
 
